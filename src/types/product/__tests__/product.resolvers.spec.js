@@ -5,7 +5,7 @@ import { Product } from '../product.model'
 import { User } from '../../user/user.model'
 
 describe('Resolvers', () => {
-  describe('lesson-3:', () => {
+  describe('Testing Diff fiels', () => {
     test('product gets one by id in args', async () => {
       const user = mongoose.Types.ObjectId()
       const product = await Product.create({
@@ -19,15 +19,13 @@ describe('Resolvers', () => {
       const result = await resolvers.Query.product(
         null,
         { id: product._id },
+
         { user: {} }
       )
-
       expect(`${result._id}`).toBe(`${product._id}`)
     })
-
     test('products gets all products', async () => {
       const user = mongoose.Types.ObjectId()
-
       const products = await Product.create([
         {
           name: 'Ultra-rig',
@@ -44,12 +42,10 @@ describe('Resolvers', () => {
           createdBy: user
         }
       ])
-
       const result = await resolvers.Query.products(null, {}, { user: {} })
-
       expect(result).toHaveLength(2)
       products.forEach(p => {
-        const match = result.find(r => `${r._id}` === `${p._id}`)
+        const match = result.find(r => `$(r._id)` == `${p._id}`)
         expect(match).toBeTruthy()
       })
     })
@@ -59,21 +55,17 @@ describe('Resolvers', () => {
         input: {
           name: 'Monster v5 bike',
           price: 450,
-          bikeType: 'KIDS',
-          type: 'BIKE'
+          bikeType: 'Kids',
+          type: 'Bike'
         }
       }
 
       const result = await resolvers.Mutation.newProduct(null, args, {
-        user: { role: 'admin', _id: mongoose.Types.ObjectId() }
-      })
-
-      Object.keys(args.input).forEach(field => {
-        expect(result[field]).toBe(args.input[field])
+        user: { role: admin, _id: mongoose.Types.ObjectId() }
       })
     })
 
-    test('updateProduct updates existing product from args', async () => {
+    test('updateProdict updates existing product from args', async () => {
       const product = await Product.create({
         name: 'Monster v5 bike',
         price: 450,
@@ -81,14 +73,10 @@ describe('Resolvers', () => {
         type: 'BIKE',
         createdBy: mongoose.Types.ObjectId()
       })
-
       const args = {
         id: product._id,
-        input: {
-          price: 300
-        }
+        input: { price: 300 }
       }
-
       const result = await resolvers.Mutation.updateProduct(null, args, {
         user: { role: 'admin' }
       })
@@ -96,7 +84,6 @@ describe('Resolvers', () => {
       expect(`${result._id}`).toBe(`${product._id}`)
       expect(result.price).toBe(300)
     })
-
     test('removeProduct removes existing product from args', async () => {
       const product = await Product.create({
         name: 'Monster v5 bike',
@@ -127,29 +114,20 @@ describe('Resolvers', () => {
       const result = await resolvers.Product.createdBy({ createdBy: user._id })
       expect(`${user._id}`).toBe(`${result._id}`)
     })
-  })
-  describe('lesson-4:', () => {
     test('resolves product interface', () => {
       const resolver = resolvers.Product.__resolveType
-      expect(resolver({ type: 'BIKE' })).toBe('Bike')
+      expect(resolver({ type: 'BIKE' }).toBe('Bike'))
       expect(resolver({ type: 'GAMING_PC' })).toBe('GamingPc')
       expect(resolver({ type: 'DRONE' })).toBe('Drone')
       expect(resolver({ type: 'nope' })).toBe(undefined)
     })
-  })
-  describe('lesson-5:', () => {
-    test('product requires auth', async () => {
+    test('product reqruies auth', async () => {
       expect(() =>
         resolvers.Query.product(null, { id: mongoose.Types.ObjectId() }, {})
       ).toThrow(AuthenticationError)
     })
-    test('products requires auth', () => {
-      expect(() => resolvers.Query.products(null, {}, {})).toThrow(
-        AuthenticationError
-      )
-    })
     test('newProduct requires auth and admin', () => {
-      expect(() =>
+      expect(() => {
         resolvers.Mutation.newProduct(
           null,
           {
@@ -162,25 +140,25 @@ describe('Resolvers', () => {
             }
           },
           {}
-        )
-      ).toThrow(AuthenticationError)
-      expect(() =>
-        resolvers.Mutation.newProduct(
-          null,
-          {
-            input: {
-              name: 'Monster v6 bike',
-              price: 450,
-              bikeType: 'KIDS',
-              type: 'BIKE',
-              createdBy: mongoose.Types.ObjectId()
-            }
-          },
-          { user: { roles: 'member' } }
-        )
-      ).toThrow(AuthenticationError)
-    })
+        ).toThrow(AuthenticationError)
 
+        expect(() =>
+          resolvers.Mutation.newProduct(
+            null,
+            {
+              input: {
+                name: 'Monster v6 bike',
+                price: 450,
+                bikeType: 'KIDS',
+                type: 'BIKE',
+                createdBy: mongoose.Types.ObjectId()
+              }
+            },
+            { user: { roles: 'member' } }
+          )
+        ).toThrow(AuthenticationError)
+      })
+    })
     test('newProduct uses auth user for createdBy', async done => {
       const userId = mongoose.Types.ObjectId()
       const result = await resolvers.Mutation.newProduct(
